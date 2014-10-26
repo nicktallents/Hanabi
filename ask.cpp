@@ -37,30 +37,32 @@ Event* Player::ask()
 	*/
 	if(checkDiscardSlot(oHand[0])) {
 		if(nHints > 0) {
-			if(oKB[0].perceivedNum == -1) {
-				vector<int> numIndices;
-				for(int i = 0; i< HAND_SIZE; i++) {
-					if(oHand[i].number == oHand[0].number) {
-						numIndices.push_back(i);
+			if(oKB[0].discardable) {
+				if(oKB[0].perceivedNum == -1) {
+					vector<int> numIndices;
+					for(int i = 0; i< HAND_SIZE; i++) {
+						if(oHand[i].number == oHand[0].number) {
+							numIndices.push_back(i);
+						}
 					}
+
+					NumberHintEvent* hint = new NumberHintEvent(numIndices, oHand[0].number);
+					return hint;
+
 				}
-
-				NumberHintEvent* hint = new NumberHintEvent(numIndices, oHand[0].number);
-				return hint;
-
-			}
-			else if(oKB[0].perceivedColor == -1) {
-				vector<int> colorIndices;
-				for(int i = 0; i < HAND_SIZE; i++) {
-					if(oHand[i].color == oHand[0].color) {
-						colorIndices.push_back(i);
+				else if(oKB[0].perceivedColor == -1) {
+					vector<int> colorIndices;
+					for(int i = 0; i < HAND_SIZE; i++) {
+						if(oHand[i].color == oHand[0].color) {
+							colorIndices.push_back(i);
+						}
 					}
+					ColorHintEvent* hint = new ColorHintEvent(colorIndices, oHand[0].color);
+					return hint;
 				}
-				ColorHintEvent* hint = new ColorHintEvent(colorIndices, oHand[0].color);
-				return hint;
-			}
 				
-				//Tell other player of valuable card
+					//Tell other player of valuable card
+			}
 		}
 	}
 	if(checkDiscardSlot(KB[0])) {
@@ -102,7 +104,7 @@ Event* Player::ask()
 		//Discard from your discard slot
 	}
 	else if(!(knowsValidPlay(KB)) && !(knowsValidPlay(oKB)) && hasValidPlay(oHand)) {
-		//use guses to tell other player of valid move
+		//use guess to tell other player of valid move
 	}
 	else if(!(knowsValidPlay(KB)) && !(knowsValidPlay(oKB)) && !(hasValidPlay(oHand))) {
 		DiscardEvent* de = new DiscardEvent(0);

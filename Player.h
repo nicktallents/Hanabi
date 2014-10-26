@@ -34,6 +34,8 @@ public:
 
 	bool knowsValidPlay(vector<CardInfo> kb);
 	bool hasValidPlay(vector<Card> hand);
+	
+	
 private:
 	vector<CardInfo> KB;		// my knowledge base
 	vector<CardInfo> oKB;		// partner's knowledge base

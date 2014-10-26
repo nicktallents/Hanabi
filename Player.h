@@ -26,6 +26,14 @@ public:
 	Player(const Player& p);
 	void tell(Event* e, vector<int> board, int hints, int fuses, vector<Card> oHand, int deckSize);
 	Event* ask();
+
+	bool checkDiscardSlot(CardInfo k);
+	bool checkDiscardSlot(Card k);
+
+	int remainingCount(int val, int color);
+
+	bool knowsValidPlay(vector<CardInfo> kb);
+	bool hasValidPlay(vector<Card> hand);
 private:
 	vector<CardInfo> KB;		// my knowledge base
 	vector<CardInfo> oKB;		// partner's knowledge base

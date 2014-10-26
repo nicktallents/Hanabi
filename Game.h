@@ -261,10 +261,10 @@ int Game::gameLoop()
 			}
 			players[currentPlayer].hand.erase(players[currentPlayer].hand.begin() + pe->position);
 			pe->wasItThisPlayer = false;
-			tellOtherPlayer(e);
+			tellOtherPlayer(pe);
 			pe->wasItThisPlayer = true;
-			tellCurrentPlayer(e);
-			delete e;
+			tellCurrentPlayer(pe);
+			delete pe;
 
 			if (deck.size() > 0)
 			{

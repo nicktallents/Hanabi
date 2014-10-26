@@ -39,6 +39,9 @@ private:
 	vector<CardInfo> oKB;		// partner's knowledge base
 	vector<Card> oHand;			// partner's known hand for purpose of knowing swap movements
 	vector<Card> discardPile;	// game's discard pile
+	int nHints;					// number of hints
+	int nFuses;					// number of fuses
+	vector<int> board;			// board
 };
 
 #endif

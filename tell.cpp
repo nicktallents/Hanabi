@@ -11,7 +11,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 
 	else if (e->getAction() == PLAY) {
 		PlayEvent* pe = static_cast<PlayEvent*>(e);
-		
+		// check if the play was legal and update proper vars
 		if (pe->legal) {
 			this->board = board;
 		}
@@ -19,7 +19,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 			this->discardPile.push_back(pe->c);
 			this->nFuses = fuses;
 		}
-
+		// remove the card from either the player's KB or partner's KB and hand
 		if (pe->wasItThisPlayer) {
 			KB.erase(KB.begin()+pe->position);
 		}

@@ -33,6 +33,7 @@ private:
 	vector<Card> discardPile;	// game's discard pile
 	int nHints;					// number of hints
 	int nFuses;					// number of fuses
+	vector<int> board;			// board
 };
 
 #endif

@@ -21,15 +21,15 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 					if (remainingCount(KB[i].perceivedNum, KB[i].perceivedColor) == 1) {
 						KB[i].discardable = false;
 					}
+					// if it's the same color with same or lesser value
+					if (KB[i].perceivedColor == pe->c.color && KB[i].perceivedNum == pe->c.number) {
+						KB[i].usable = false;
+						KB[i].discardable = true;
+					}
 					// if it's usable, see if it's not usable / discardable
 					if (KB[i].usable) {
-						// if it's the same card...
-						if (KB[i].perceivedColor == pe->c.color && KB[i].perceivedNum == pe->c.number) {
-							KB[i].usable = false;
-							KB[i].discardable = true;
-						}
 						// if it's the same color, but we don't know the number...
-						else if (KB[i].perceivedColor == pe->c.color && KB[i].perceivedNum == -1) {
+						if (KB[i].perceivedColor == pe->c.color && KB[i].perceivedNum == -1) {
 							KB[i].usable = false;
 						}
 						// if it's the same number, but we don't know the color...
@@ -61,4 +61,9 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		}
 		delete pe;
 	}
+}
+
+void updateKB(vector<CardInfo> &kb, Card c)
+{
+	;
 }

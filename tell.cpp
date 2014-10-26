@@ -9,6 +9,10 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		delete se;
 	}
 
+	else if (e->getAction() == DRAW) {
+		this->oHand = oHand;
+	}
+
 	else if (e->getAction() == PLAY) {
 		PlayEvent* pe = static_cast<PlayEvent*>(e);
 		// check if the play was legal and update proper vars
@@ -24,11 +28,17 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		if (pe->wasItThisPlayer) {
 			updateKB(oKB, pe->c);
 			KB.erase(KB.begin()+pe->position);
+			if (deckSize > 0) {
+				KB.push_back(CardInfo());
+			}
 		}
 		else {
 			updateKB(KB, pe->c);
 			oKB.erase(oKB.begin()+pe->position);
 			this->oHand = oHand;
+			if (deckSize > 0) {
+				oKB.push_back(CardInfo());
+			}
 		}
 		delete pe;
 	}
@@ -38,11 +48,17 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		if (de->wasItThisPlayer) {
 			updateKB(oKB, de->c);
 			KB.erase(KB.begin()+de->position);
+			if (deckSize > 0) {
+				KB.push_back(CardInfo());
+			}
 		}
 		else {
 			updateKB(KB, de->c);
 			oKB.erase(oKB.begin()+de->position);
 			this->oHand = oHand;
+			if (deckSize > 0) {
+				oKB.push_back(CardInfo());
+			}
 		}
 		this->nHints = hints;
 	}

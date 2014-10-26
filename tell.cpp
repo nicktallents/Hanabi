@@ -32,6 +32,20 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		}
 		delete pe;
 	}
+
+	else if (e->getAction() == DISCARD) {
+		DiscardEvent *de = static_cast<DiscardEvent*>(e);
+		if (de->wasItThisPlayer) {
+			updateKB(oKB, de->c);
+			KB.erase(KB.begin()+de->position);
+		}
+		else {
+			updateKB(KB, de->c);
+			oKB.erase(oKB.begin()+de->position);
+			this->oHand = oHand;
+		}
+		this->nHints = hints;
+	}
 }
 
 void Player::updateKB(vector<CardInfo> &kb, Card c)

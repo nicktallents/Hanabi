@@ -235,10 +235,6 @@ Event* Player::validGuess(int& type) {
 	//Look through hand and find valid played cards
 	int bestCard = 0;
 	vector<CardCommon> commonCards;
-	vector<int> commonNumbers;
-	vector<int> commonColors;
-	vector<int> bestCommonNumbers;
-	vector<int> bestCommonColors;
 	for(int i = 0; i < validCards.size(); i++) {
 		CardCommon c;
 		commonCards.push_back(c);

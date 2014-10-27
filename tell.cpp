@@ -9,6 +9,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		delete se;
 	}
 
+	// this only applies to partner's hand
 	else if (e->getAction() == DRAW) {
 		this->oHand = oHand;
 	}
@@ -61,6 +62,29 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 			}
 		}
 		this->nHints = hints;
+		delete de;
+	}
+
+	else if (e->getAction() == COLOR_HINT) {
+		ColorHintEvent* ce = static_cast<ColorHintEvent*>(e);
+
+		// update KB colors
+		for (int i=0; i<ce->indices.size(); i++) {
+			KB[ ce->indices[i] ].perceivedColor = ce->color; 
+		}
+
+		delete ce;
+	}
+
+	else if (e->getAction() == NUMBER_HINT) {
+		NumberHintEvent* ne = static_cast<NumberHintEvent*>(e);
+
+		// update KB numbers
+		for (int i=0; i<ne->indices.size(); i++) {
+			KB[ ne->indices[i] ].perceivedNum = ne->number;
+		}
+
+		delete ne;
 	}
 }
 

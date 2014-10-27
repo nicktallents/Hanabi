@@ -19,6 +19,15 @@ struct CardInfo
 	bool discardable;
 };
 
+struct CardCommon
+{
+	CardCommon();
+	int cardIndex;
+	vector<int> commonNumbers;
+	vector<int> commonColors;
+
+};
+
 class Player
 {
 public:
@@ -35,6 +44,7 @@ public:
 	bool knowsValidPlay(vector<CardInfo> kb);
 	bool hasValidPlay(vector<Card> hand);
 	
+	Event* validGuess(int& type);
 
 	void updateKB(vector<CardInfo> &kb, Card c);
 private:

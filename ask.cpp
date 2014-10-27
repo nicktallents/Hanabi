@@ -87,6 +87,16 @@ Event* Player::ask()
 	}
 	//If I know of valid move, other player doesn't but has one
 	else if(knowsValidPlay(KB) && !(knowsValidPlay(oKB)) && hasValidPlay(oHand)) {
+		int type = 0;
+		Event* guess = validGuess(type);
+		if(type == 0) {
+			NumberHintEvent* hint = static_cast<NumberHintEvent*>(guess);
+			return hint;
+		}
+		else if(type == 1) {
+			ColorHintEvent* hint = static_cast<ColorHintEvent*>(guess);
+			return hint;
+		}
 		//Use guess to tell other player of valid move
 	}
 	else if(knowsValidPlay(KB) && !(knowsValidPlay(oKB)) && !(hasValidPlay(oHand))) {
@@ -105,6 +115,16 @@ Event* Player::ask()
 	}
 	else if(!(knowsValidPlay(KB)) && !(knowsValidPlay(oKB)) && hasValidPlay(oHand)) {
 		//use guess to tell other player of valid move
+		int type = 0;
+		Event* guess = validGuess(type);
+		if(type == 0) {
+			NumberHintEvent* hint = static_cast<NumberHintEvent*>(guess);
+			return hint;
+		}
+		else if(type == 1) {
+			ColorHintEvent* hint = static_cast<ColorHintEvent*>(guess);
+			return hint;
+		}
 	}
 	else if(!(knowsValidPlay(KB)) && !(knowsValidPlay(oKB)) && !(hasValidPlay(oHand))) {
 		DiscardEvent* de = new DiscardEvent(0);
@@ -190,4 +210,90 @@ bool Player::hasValidPlay(vector<Card> hand) {
 
 	}
 	return false;
+}
+
+Event* Player::validGuess(int& type) {
+	vector<Card> neededCards;
+	for(int i = 0; i < board.size(); i++) {
+		if(board[i] < 5) {
+			Card temp(i,board[i]+1);
+			neededCards.push_back(temp);
+		}
+	}
+	//Make list of needed cards from board
+
+	vector<Card> validCards;
+	vector<int> validCardsLoc;
+	for(int i = 0; i < oHand.size(); i++) {
+		for(int j = 0; j < neededCards.size(); j++) {
+			if(oHand[i] == neededCards[j]) {
+				validCards.push_back(oHand[i]);
+				validCardsLoc.push_back(i);
+			}
+		}
+	}
+	//Look through hand and find valid played cards
+	int bestCard = 0;
+	vector<CardCommon> commonCards;
+	vector<int> commonNumbers;
+	vector<int> commonColors;
+	vector<int> bestCommonNumbers;
+	vector<int> bestCommonColors;
+	for(int i = 0; i < validCards.size(); i++) {
+		CardCommon c;
+		commonCards.push_back(c);
+		commonCards[i].cardIndex = validCardsLoc[i];
+		for(int j = 0; j < oHand.size(); i++) {
+			if(validCards[i].color == oHand[j].color) {
+				commonCards[i].commonColors.push_back(j);
+			}
+			if(validCards[i].number == oHand[j].number) {
+				commonCards[i].commonNumbers.push_back(j);
+			}
+		}
+	}
+	int smallest = 6;
+	for(int i = 0; i< commonCards.size(); i++) {
+		if(commonCards[i].commonColors.size() < smallest) {
+			smallest = commonCards[i].commonColors.size();
+			bestCard = i;
+		}
+		if(commonCards[i].commonNumbers.size() < smallest) {
+			smallest = commonCards[i].commonNumbers.size();
+			bestCard = i;
+		}
+	}
+	if(commonCards[bestCard].commonColors.size() < commonCards[bestCard].commonNumbers.size()) {
+		if(oKB[commonCards[bestCard].cardIndex].perceivedColor == -1) {
+			ColorHintEvent* hint = new ColorHintEvent(commonCards[bestCard].commonColors,oHand[commonCards[bestCard].cardIndex].color);
+			type = 1;
+			return hint;
+		}
+		else {
+			NumberHintEvent* hint = new NumberHintEvent(commonCards[bestCard].commonNumbers, oHand[commonCards[bestCard].cardIndex].number);
+			type = 0;
+			return hint;
+		}
+	}
+	if(commonCards[bestCard].commonNumbers.size() <= commonCards[bestCard].commonNumbers.size()) {
+		if(oKB[commonCards[bestCard].cardIndex].perceivedNum == -1) {
+			NumberHintEvent* hint = new NumberHintEvent(commonCards[bestCard].commonNumbers, oHand[commonCards[bestCard].cardIndex].number);
+			type = 0;
+			return hint;
+		}
+		else {
+			ColorHintEvent* hint = new ColorHintEvent(commonCards[bestCard].commonColors, oHand[commonCards[bestCard].cardIndex].color);
+			type = 1;
+			return hint;
+		}
+	}
+	//For each card
+		//Get the count of cards that share color
+		//Get the count of cards that share value
+		//Smallest set is the card we use
+
+	//If smallest is a color and oKB knows about it
+		//Tell them about the value
+		//or vice versa
+
 }

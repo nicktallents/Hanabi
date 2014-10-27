@@ -171,6 +171,8 @@ int Game::gameLoop()
 		{
 			DiscardEvent *de = static_cast<DiscardEvent*>(e);
 			de->c = players[currentPlayer].hand[de->position];
+			players[currentPlayer].hand.erase(players[currentPlayer].hand.begin() + de->position);
+
 			de->wasItThisPlayer = false;
 			tellOtherPlayer(de);
 			de->wasItThisPlayer = true;
@@ -181,7 +183,6 @@ int Game::gameLoop()
 				hints++;
 			}
 
-			players[currentPlayer].hand.erase(players[currentPlayer].hand.begin() + de->position);
 			delete e;
 			
 			if (deck.size() > 0)
@@ -261,10 +262,10 @@ int Game::gameLoop()
 			}
 			players[currentPlayer].hand.erase(players[currentPlayer].hand.begin() + pe->position);
 			pe->wasItThisPlayer = false;
-			tellOtherPlayer(pe);
+			tellOtherPlayer(e);
 			pe->wasItThisPlayer = true;
-			tellCurrentPlayer(pe);
-			delete pe;
+			tellCurrentPlayer(e);
+			delete e;
 
 			if (deck.size() > 0)
 			{
@@ -401,7 +402,7 @@ void Game::announce(Event* e)
 	{
 		DiscardEvent* de = static_cast<DiscardEvent*>(e);
 		cout << "Player " << currentPlayer + 1 << " has discarded card #" << de->position + 1 << ", a "
-			<< players[currentPlayer].hand[de->position].toString() << "." << endl;
+			<< de->c.toString() << "." << endl;
 		if (deck.size() > 0)
 		{
 			return;

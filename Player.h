@@ -36,7 +36,7 @@ public:
 	bool hasValidPlay(vector<Card> hand);
 	
 
-	void updateKB(vector<CardInfo> &kb, Card c);
+	void updateKB(vector<CardInfo> &kb, Card c);	// only for after playing / discarding. Not for hints.
 private:
 	vector<CardInfo> KB;		// my knowledge base
 	vector<CardInfo> oKB;		// partner's knowledge base

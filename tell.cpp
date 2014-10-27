@@ -82,8 +82,39 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		// update KB numbers
 		for (int i=0; i<ne->indices.size(); i++) {
 			KB[ ne->indices[i] ].perceivedNum = ne->number;
+
+			// if know full card info, update information
+			if (KB[ ne->indices[i] ].perceivedColor != -1) {
+				// if the number is less than the top card number then it is discardable
+				if (KB[ ne->indices[i] ].perceivedNum < board[ KB[ ne->indices[i] ].perceivedColor ]) {
+					KB[ ne->indices[i] ].discardable = true;
+					KB[ ne->indices[i] ].usable = false;
+				}
+				// if the number is one greater than a playable card then it is usable
+				if (KB[ ne->indices[i] ].perceivedNum == board[ KB[ ne->indices[i] ].perceivedColor ] + 1) {
+					KB[ ne->indices[i] ].usable = true;
+					// check to see if it's the only card of its kind left and if it is then it's not discardable
+					if (remainingCount(KB[ ne->indices[i] ].perceivedNum, KB[ ne->indices[i] ].perceivedColor) == 1) {
+						KB[ ne->indices[i] ].discardable = false;
+					}
+					else {
+						KB[ ne->indices[i] ].discardable = true;
+					}
+				}
+			}
 		}
 
+		// if only one card hint and don't know the number
+		if (ne->indices.size() == 1 && KB[ ne->indices[0] ].perceivedColor == -1) {
+			// check if there is a playable spot on the board. If there is, then it's playable
+			for (int i=0; i<board.size(); i++) {
+				if (KB[ ne->indices[0] ].perceivedNum == board[i] + 1) {
+					KB[ ne->indices[0] ].usable = true;
+					break;
+				}
+				// what if it's a non-playable, non-discardable card in the discard slot?
+			}
+		}
 		delete ne;
 	}
 }

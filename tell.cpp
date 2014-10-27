@@ -107,13 +107,17 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		// if only one card hint and don't know the number
 		if (ne->indices.size() == 1 && KB[ ne->indices[0] ].perceivedColor == -1) {
 			// check if there is a playable spot on the board. If there is, then it's playable
+			int count = 0;
 			for (int i=0; i<board.size(); i++) {
 				if (KB[ ne->indices[0] ].perceivedNum == board[i] + 1) {
 					KB[ ne->indices[0] ].usable = true;
 					break;
 				}
-				// what if it's a non-playable, non-discardable card in the discard slot?
+				else {
+					count++;
+				}
 			}
+			// number value isn't playable anywhere. Then it is discardable
 		}
 		delete ne;
 	}

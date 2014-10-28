@@ -11,7 +11,7 @@ using namespace std;
 int main()
 {
 	int total = 0;
-	Game g(false);
+	Game g(true);
 	for (int i = 0; i < 1000; i++)
 	{
 		Player p1;

@@ -64,7 +64,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		SwapEvent* se = static_cast<SwapEvent*>(e);
 		swap(oKB[se->firstPosition], oKB[se->secondPosition]);
 		this->oHand = oHand;
-		delete se;
+		//delete se;
 	}
 
 	// this only applies to partner's hand
@@ -99,7 +99,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 				oKB.push_back(CardInfo());
 			}
 		}
-		delete pe;
+		//delete pe;
 	}
 
 	else if (e->getAction() == DISCARD) {
@@ -120,7 +120,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 			}
 		}
 		this->nHints = hints;
-		delete de;
+		//delete de;
 	}
 
 	else if (e->getAction() == COLOR_HINT) {
@@ -160,7 +160,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 			KB[0].discardable == false;
 		}
 
-		delete ce;
+		//delete ce;
 	}
 
 	else if (e->getAction() == NUMBER_HINT) {
@@ -235,7 +235,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 			}
 		}
 
-		delete ne;
+		//delete ne;
 	}
 }
 

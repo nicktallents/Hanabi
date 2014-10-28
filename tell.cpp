@@ -71,6 +71,35 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		// update KB colors
 		for (int i=0; i<ce->indices.size(); i++) {
 			KB[ ce->indices[i] ].perceivedColor = ce->color; 
+
+			// if know full card info, update information
+			if (KB[ ce->indices[i] ].perceivedNum != -1) {
+				// if the number is less than the top card number then it is discardable
+				if (KB[ ce->indices[i] ].perceivedNum < board[ KB[ ce->indices[i] ].perceivedColor ]) {
+					KB[ ce->indices[i] ].discardable = true;
+					KB[ ce->indices[i] ].usable = false;
+				}
+				// if the number is one greater than a playable card then it is usable
+				if (KB[ ce->indices[i] ].perceivedNum == board[ KB[ ce->indices[i] ].perceivedColor ] + 1) {
+					KB[ ce->indices[i] ].usable = true;
+					// check to see if it's the only card of its kind left and if it is then it's not discardable
+					if (remainingCount(KB[ ce->indices[i] ].perceivedNum, KB[ ce->indices[i] ].perceivedColor) == 1) {
+						KB[ ce->indices[i] ].discardable = false;
+					}
+					else {
+						KB[ ce->indices[i] ].discardable = true;
+					}
+				}
+			}
+		}
+
+		// if one of the indices is in the discard slot then it is not usable without full information, 
+		// and not discardable in any situation
+		if (ce->indices[0] == 0) {
+			if (KB[0].perceivedNum == -1) {
+				KB[0].usable = false;
+			}
+			KB[0].discardable == false;
 		}
 
 		delete ce;

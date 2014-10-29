@@ -44,6 +44,8 @@ public:
 	bool hasValidPlay(vector<Card> hand);
 
 	Event* crucialPlay(vector<Card> oHand);
+	Event* myCrucialPlay();
+	Event* discardCard();
 	
 	Event* validGuess(int& type);
 
@@ -130,6 +132,9 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		ColorHintEvent* ce = static_cast<ColorHintEvent*>(e);
 
 		// update KB colors
+		if(ce->indices.size() == 1) {
+			KB[ce->indices[0]].usable = true;
+		}
 		for (int i=0; i<ce->indices.size(); i++) {
 			KB[ ce->indices[i] ].perceivedColor = ce->color; 
 
@@ -170,6 +175,9 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		NumberHintEvent* ne = static_cast<NumberHintEvent*>(e);
 
 		// update KB numbers
+		if(ne->indices.size() == 1) {
+			KB[ne->indices[0]].usable = true;
+		}
 		for (int i=0; i<ne->indices.size(); i++) {
 			KB[ ne->indices[i] ].perceivedNum = ne->number;
 
@@ -320,7 +328,7 @@ Event* Player::ask()
 		if(nHints > 0) {
 			if(oKB[0].perceivedNum == -1) {
 				vector<int> numIndices;
-				for(int i = 0; i< HAND_SIZE; i++) {
+				for(int i = 0; i< oHand.size(); i++) {
 					if(oHand[i].number == oHand[0].number) {
 						numIndices.push_back(i);
 					}
@@ -335,7 +343,7 @@ Event* Player::ask()
 			}
 			else if(oKB[0].perceivedColor == -1) {
 				vector<int> colorIndices;
-				for(int i = 0; i < HAND_SIZE; i++) {
+				for(int i = 0; i < oHand.size(); i++) {
 					if(oHand[i].color == oHand[0].color) {
 						colorIndices.push_back(i);
 					}
@@ -353,7 +361,7 @@ Event* Player::ask()
 	//Swap it with a safe card
 	//If I have no safe cards, ignore
 	if(checkDiscardSlot(KB[0])) {
-		for(int i = 1; i < HAND_SIZE; i++) {
+		for(int i = 1; i < oHand.size(); i++) {
 			if(KB[i].discardable) {
 				SwapEvent* swap = new SwapEvent(0,i);
 				CardInfo temp = KB[0];
@@ -365,11 +373,19 @@ Event* Player::ask()
 		//Swap valuable card from discard slot
 	}
 	Event* e = NULL;
-	e = crucialPlay(oHand);
-
+	if(nHints > 0) {
+		e = crucialPlay(oHand);
+	}
 	if(e != NULL) {
 		return e;
 	}
+	e = myCrucialPlay();
+	if(e != NULL) {
+		return e;
+	}
+
+	e = discardCard();
+	return e;
 	if(knowsValidPlay(KB)) {
 		for(int i = 0; i < HAND_SIZE; i++) {
 			if(KB[i].usable) {
@@ -518,7 +534,10 @@ Event* Player::crucialPlay(vector<Card> oHand) {
 		numCount = 0;
 	}
 	if(smallestNum == 1) {
-		if(oKB[validCardLocs[bestNumIndex]].perceivedNum != -1) {
+		if(oKB[validCardLocs[bestNumIndex]].perceivedColor != -1 && oKB[validCardLocs[bestNumIndex]].perceivedNum != -1) {
+			return NULL;
+		}
+		else if(oKB[validCardLocs[bestNumIndex]].perceivedNum != -1) {
 			vector<int> indices;
 			for(int i = 0; i < oHand.size(); i++) {
 				if(validCards[bestNumIndex].color == oHand[i].color) {
@@ -543,7 +562,10 @@ Event* Player::crucialPlay(vector<Card> oHand) {
 		}
 	}
 	else if (smallestColor == 1) {
-		if(oKB[validCardLocs[bestColorIndex]].perceivedColor != -1) {
+		if(oKB[validCardLocs[bestColorIndex]].perceivedColor != -1 && oKB[validCardLocs[bestColorIndex]].perceivedNum != -1) {
+			return NULL;
+		}
+		else if(oKB[validCardLocs[bestColorIndex]].perceivedColor != -1) {
 			vector<int> indices;
 			for(int i = 0; i < oHand.size(); i++) {
 				if(validCards[bestColorIndex].number == oHand[i].number) {
@@ -603,6 +625,21 @@ Event* Player::crucialPlay(vector<Card> oHand) {
 	}
 	return NULL;
 }
+
+Event* Player::myCrucialPlay() {
+	for(int i = 0; i < KB.size(); i++) {
+		if(KB[i].usable) {
+			PlayEvent* play = new PlayEvent(i);
+			return play;
+		}
+	}
+	return NULL;
+}
+
+Event* Player::discardCard() {
+	DiscardEvent* discard = new DiscardEvent(0);
+	return discard;
+}
 //Expects positive val/color
 //Gets the remaining count of a card by value/color
 int Player::remainingCount(int val, int color) {
@@ -610,7 +647,7 @@ int Player::remainingCount(int val, int color) {
 	int played = 0;
 
 	//Check other player hand
-	for(int i = 0; i < HAND_SIZE; i++) {
+	for(int i = 0; i < oHand.size(); i++) {
 		if(oHand[i].number == val && oHand[i].color == color) {
 			count++;
 		}

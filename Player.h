@@ -132,7 +132,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		ColorHintEvent* ce = static_cast<ColorHintEvent*>(e);
 
 		// update KB colors
-		if(ce->indices.size() == 1) {
+		if(ce->indices.size() == 1 && ce->indices[0] != 0) {
 			KB[ce->indices[0]].usable = true;
 		}
 		for (int i=0; i<ce->indices.size(); i++) {
@@ -175,7 +175,7 @@ void Player::tell(Event* e, vector<int> board, int hints, int fuses, vector<Card
 		NumberHintEvent* ne = static_cast<NumberHintEvent*>(e);
 
 		// update KB numbers
-		if(ne->indices.size() == 1) {
+		if(ne->indices.size() == 1 && ne->indices[0] != 0) {
 			KB[ne->indices[0]].usable = true;
 		}
 		for (int i=0; i<ne->indices.size(); i++) {
@@ -304,23 +304,11 @@ Player::Player(const Player& p) {
 
 Event* Player::ask()
 {
-
-	/*Ask order:
-	Check discard slots to see if valuable cards are in danger
-
-
-	if you know you have a valid play, and your opponent knows he has a valid play, play a card
-	if you know you have a valid play, and your opponent has one but doesn't know, use a guess
-	if you know you have a valid play, and your opponent does not have a valid play, play a card
-	if you don't know you have a valid play, and your opponent has one but doesn't know, use a guess
-	if you don't know you have a valid play and your oppoent knows he has a valid play, discard
-	if you don't know you have a valid play and your oppoent does not have a valid play, discard. 
-	If, on your turn, your opponent does not know of a valid play that he possesses, inform him.
-	Otherwise, play your legal move, or discard a card. 
-
-	*/
-
-
+	
+	if(nFuses == 1) {
+		DiscardEvent* discard = new DiscardEvent(0);
+		return discard;
+	}
 	//If other player's discard slot is in danger and he doesn't know, let them know
 	//Else ignore
 	//If no hints, skip
@@ -361,7 +349,7 @@ Event* Player::ask()
 	//Swap it with a safe card
 	//If I have no safe cards, ignore
 	if(checkDiscardSlot(KB[0])) {
-		for(int i = 1; i < oHand.size(); i++) {
+		for(int i = 1; i < KB.size(); i++) {
 			if(KB[i].discardable) {
 				SwapEvent* swap = new SwapEvent(0,i);
 				CardInfo temp = KB[0];
@@ -386,6 +374,8 @@ Event* Player::ask()
 
 	e = discardCard();
 	return e;
+
+	/*
 	if(knowsValidPlay(KB)) {
 		for(int i = 0; i < HAND_SIZE; i++) {
 			if(KB[i].usable) {
@@ -462,20 +452,13 @@ Event* Player::ask()
 			ColorHintEvent* hint = static_cast<ColorHintEvent*>(guess);
 			return hint;
 		}
-	}
+	}*/
 }
 
 bool Player::checkDiscardSlot(CardInfo k) {
 	//If the card is considered discardable, ignore
 	if(k.discardable) return false;
 	else return true;
-
-	/*
-	//If there's only one of the card left in the game, or I know the card is usable, swap
-	if((remainingCount(k.perceivedNum, k.perceivedColor) == 1) || k.usable) {
-		return true;
-	}
-	return false;*/
 }
 
 bool Player::checkDiscardSlot(Card k) {

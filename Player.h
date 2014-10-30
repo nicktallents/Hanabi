@@ -1,3 +1,10 @@
+/********************
+Group: David Goehring, Nick Tallents
+Project: Homework 4 Hanabi Code
+Date: 10/29/14
+
+Our implementation is shown to score on average 14-15 points. 
+********************/
 #include "GameConstants.h"
 #include "Card.h"
 #include "Events.h"
@@ -40,14 +47,9 @@ public:
 
 	int remainingCount(int val, int color);
 
-	bool knowsValidPlay(vector<CardInfo> kb);
-	bool hasValidPlay(vector<Card> hand);
-
 	Event* crucialPlay(vector<Card> oHand);
 	Event* myCrucialPlay();
 	Event* discardCard();
-	
-	Event* validGuess(int& type);
 
 	void updateKB(vector<CardInfo> &kb, Card c);	// only for after playing / discarding. Not for hints.
 private:
@@ -306,7 +308,7 @@ Event* Player::ask()
 {
 	
 	if(nFuses == 1) {
-		DiscardEvent* discard = new DiscardEvent(0);
+		Event* discard = discardCard();
 		return discard;
 	}
 	//If other player's discard slot is in danger and he doesn't know, let them know
@@ -374,85 +376,6 @@ Event* Player::ask()
 
 	e = discardCard();
 	return e;
-
-	/*
-	if(knowsValidPlay(KB)) {
-		for(int i = 0; i < HAND_SIZE; i++) {
-			if(KB[i].usable) {
-				PlayEvent* play = new PlayEvent(i);
-				return play;
-			}
-		}
-	}
-
-	//If both players know of valid moves
-	if(knowsValidPlay(KB) && knowsValidPlay(oKB)) {
-		for(int i = 0; i < HAND_SIZE; i++) {
-			if(KB[i].usable) {
-				PlayEvent* play = new PlayEvent(i);
-				return play;
-			}
-		}
-		//Play a valid card
-	}
-	//If I know of valid move, other player doesn't but has one
-	else if(knowsValidPlay(KB) && !(knowsValidPlay(oKB)) && hasValidPlay(oHand)) {
-		int type = 0;
-		Event* guess = validGuess(type);
-		if(type == 0) {
-			NumberHintEvent* hint = static_cast<NumberHintEvent*>(guess);
-			return hint;
-		}
-		else if(type == 1) {
-			ColorHintEvent* hint = static_cast<ColorHintEvent*>(guess);
-			return hint;
-		}
-		//Use guess to tell other player of valid move
-	}
-	else if(knowsValidPlay(KB) && !(knowsValidPlay(oKB)) && !(hasValidPlay(oHand))) {
-		for(int i = 0; i < HAND_SIZE; i++) {
-			if(KB[i].usable) {
-				PlayEvent* play = new PlayEvent(i);
-				return play;
-			}
-		}
-		//Play a valid card
-	}
-	else if(!(knowsValidPlay(KB)) && knowsValidPlay(oKB)) {
-		DiscardEvent* de = new DiscardEvent(0);
-		return de;
-		//Discard from your discard slot
-	}
-	else if(!(knowsValidPlay(KB)) && !(knowsValidPlay(oKB)) && hasValidPlay(oHand)) {
-		//use guess to tell other player of valid move
-		int type = 0;
-		Event* guess = validGuess(type);
-		if(type == 0) {
-			NumberHintEvent* hint = static_cast<NumberHintEvent*>(guess);
-			return hint;
-		}
-		else if(type == 1) {
-			ColorHintEvent* hint = static_cast<ColorHintEvent*>(guess);
-			return hint;
-		}
-	}
-	else if(!(knowsValidPlay(KB)) && !(knowsValidPlay(oKB)) && !(hasValidPlay(oHand)) && nHints < 8) {
-		DiscardEvent* de = new DiscardEvent(0);
-		return de;
-		//Discard from discard slot
-	}
-	else {
-		int type = 0;
-		Event* guess = validGuess(type);
-		if(type == 0) {
-			NumberHintEvent* hint = static_cast<NumberHintEvent*>(guess);
-			return hint;
-		}
-		else if(type == 1) {
-			ColorHintEvent* hint = static_cast<ColorHintEvent*>(guess);
-			return hint;
-		}
-	}*/
 }
 
 bool Player::checkDiscardSlot(CardInfo k) {
@@ -623,8 +546,7 @@ Event* Player::discardCard() {
 	DiscardEvent* discard = new DiscardEvent(0);
 	return discard;
 }
-//Expects positive val/color
-//Gets the remaining count of a card by value/color
+
 int Player::remainingCount(int val, int color) {
 	int count = 0;
 	int played = 0;
@@ -658,137 +580,6 @@ int Player::remainingCount(int val, int color) {
 	if(val==5) {
 		return 1 - played;
 	}
-}
-
-bool Player::knowsValidPlay(vector<CardInfo> kb) {
-	for(int i = 0; i < kb.size(); i++) {
-		if(kb[i].usable) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool Player::hasValidPlay(vector<Card> hand) {
-	vector<Card> neededCards;
-	for(int i = 0; i < board.size(); i++) {
-		if(board[i] < 5) {
-			Card temp(i,board[i]+1);
-			neededCards.push_back(temp);
-		}
-	}
-	for(int i = 0; i < hand.size(); i++) {
-		int val = hand[i].number;
-		int col = hand[i].color;
-
-		for(int j = 0; j < neededCards.size(); j++) {
-			if(neededCards[j].number == val && neededCards[j].color == col) {
-				return true;
-			}
-		}
-
-		//Maintain list of needed next cards for easier checks?
-
-		//If card in hand is legal
-		//return true;
-
-	}
-	return false;
-}
-
-Event* Player::validGuess(int& type) {
-
-	vector<Card> neededCards;
-	for(int i = 0; i < board.size(); i++) {
-		if(board[i] < 5) {
-			Card temp(i,board[i]+1);
-			neededCards.push_back(temp);
-		}
-	}
-	//Make list of needed cards from board
-
-	vector<Card> validCards;
-	vector<int> validCardsLoc;
-
-	if(board.size() == 0) {
-		for(int i = 0; i < oHand.size(); i++) {
-			if(oHand[i].number == 1) {
-				validCards.push_back(oHand[i]);
-				validCardsLoc.push_back(i);
-			}
-		}
-		NumberHintEvent* hint = new NumberHintEvent(validCardsLoc, 1);
-		return hint;
-
-	}
-	for(int i = 0; i < oHand.size(); i++) {
-		for(int j = 0; j < neededCards.size(); j++) {
-			if(oHand[i] == neededCards[j]) {
-				validCards.push_back(oHand[i]);
-				validCardsLoc.push_back(i);
-			}
-		}
-	}
-	//Look through hand and find valid played cards
-	int bestCard = 0;
-	vector<CardCommon> commonCards;
-	for(int i = 0; i < validCards.size(); i++) {
-		CardCommon c;
-		commonCards.push_back(c);
-		commonCards[i].cardIndex = validCardsLoc[i];
-		for(int j = 0; j < oHand.size(); j++) {
-			if(validCards[i].color == oHand[j].color) {
-				commonCards[i].commonColors.push_back(j);
-			}
-			if(validCards[i].number == oHand[j].number) {
-				commonCards[i].commonNumbers.push_back(j);
-			}
-		}
-	}
-	int smallest = 6;
-	for(int i = 0; i< commonCards.size(); i++) {
-		if(commonCards[i].commonColors.size() < smallest) {
-			smallest = commonCards[i].commonColors.size();
-			bestCard = i;
-		}
-		if(commonCards[i].commonNumbers.size() < smallest) {
-			smallest = commonCards[i].commonNumbers.size();
-			bestCard = i;
-		}
-	}
-	if(commonCards[bestCard].commonColors.size() < commonCards[bestCard].commonNumbers.size()) {
-		if(oKB[commonCards[bestCard].cardIndex].perceivedColor == -1) {
-			ColorHintEvent* hint = new ColorHintEvent(commonCards[bestCard].commonColors,oHand[commonCards[bestCard].cardIndex].color);
-			type = 1;
-			return hint;
-		}
-		else {
-			NumberHintEvent* hint = new NumberHintEvent(commonCards[bestCard].commonNumbers, oHand[commonCards[bestCard].cardIndex].number);
-			type = 0;
-			return hint;
-		}
-	}
-	if(commonCards[bestCard].commonNumbers.size() <= commonCards[bestCard].commonNumbers.size()) {
-		if(oKB[commonCards[bestCard].cardIndex].perceivedNum == -1) {
-			NumberHintEvent* hint = new NumberHintEvent(commonCards[bestCard].commonNumbers, oHand[commonCards[bestCard].cardIndex].number);
-			type = 0;
-			return hint;
-		}
-		else {
-			ColorHintEvent* hint = new ColorHintEvent(commonCards[bestCard].commonColors, oHand[commonCards[bestCard].cardIndex].color);
-			type = 1;
-			return hint;
-		}
-	}
-	//For each card
-		//Get the count of cards that share color
-		//Get the count of cards that share value
-		//Smallest set is the card we use
-
-	//If smallest is a color and oKB knows about it
-		//Tell them about the value
-		//or vice versa
-
 }
 
 #endif

@@ -3,7 +3,7 @@ Group: David Goehring, Nick Tallents
 Project: Homework 4 Hanabi Code
 Date: 10/29/14
 
-Our implementation is shown to score on average 14-15 points. 
+Our implementation is shown to score on average 15-16 points. 
 ********************/
 #include "GameConstants.h"
 #include "Card.h"
